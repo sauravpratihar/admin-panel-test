@@ -9,15 +9,12 @@ import TableRow from "@material-ui/core/TableRow";
 import Header from "./Header";
 import Footer from "./Footer";
 import AppContext from "../AppContext";
-
-function createData(id, date, name, shipTo, paymentMethod, amount) {
-  return { id, date, name, shipTo, paymentMethod, amount };
-}
+import { addCache, getCache } from "../Caching";
+import { debounce } from "../utils";
 
 const useStyles = makeStyles((theme) => ({
   pagination: {
     marginTop: theme.spacing(3),
-    // flex: "row",
     display: "inline-flex",
     alignSelf: "flex-end",
     margin: 10,
@@ -27,8 +24,6 @@ const useStyles = makeStyles((theme) => ({
   },
   select: {
     fontSize: 14,
-    // width: 1,
-    // paddingTop: 10,
     paddingRight: 10,
   },
 }));
@@ -52,11 +47,18 @@ export default function Bank() {
   } = useContext(AppContext);
 
   const fetchData = async (city) => {
-    const response = await fetch(
-      `https://vast-shore-74260.herokuapp.com/banks?city=${city}`
-    );
-    let data = await response.json();
-    // data = data.slice(0, 10);
+    // check api response in cache
+    let response = await getCache(city);
+    let data;
+    if (response) {
+      data = response;
+    } else {
+      response = await fetch(
+        `https://vast-shore-74260.herokuapp.com/banks?city=${city}`
+      );
+      data = await response.json();
+      await addCache(city, data);
+    }
 
     setGlobalData(data);
   };
@@ -97,8 +99,13 @@ export default function Bank() {
   useEffect(() => {
     console.log("find-q called");
     if (query && currentCategory !== -1) {
-      setIsFilter(true);
-      setFilteredData(findQuery(currentCategory, query));
+      console.log("find-q in if");
+
+      debounce(() => {
+        console.log("dbounce triggered");
+        setIsFilter(true);
+        setFilteredData(findQuery(currentCategory, query));
+      }, 2000)();
     } else if (!query) {
       setIsFilter(false);
     }
