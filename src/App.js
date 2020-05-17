@@ -1,9 +1,22 @@
 import React from "react";
-import AdminPanel from "./components/AdminPanel";
+import Layout from "./components/Layout";
+import Bank from "./components/Bank";
+import { AppProvider } from "./AppContext";
+
 import "./App.css";
 
+const context = {
+  CITIES: ["MUMBAI", "BANGALORE", "PUNE", "DELHI"],
+  rowPerPage: 10,
+};
 function App() {
-  return <AdminPanel />;
+  return (
+    <AppProvider value={context}>
+      <Layout>
+        <Bank />
+      </Layout>
+    </AppProvider>
+  );
 }
 
 export default App;
