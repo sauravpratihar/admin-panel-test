@@ -13,6 +13,7 @@ import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
 import MenuIcon from "@material-ui/icons/Menu";
+import Icon from "@material-ui/core/Icon";
 import { SidebarItems } from "./SidebarItems";
 const drawerWidth = 240;
 
@@ -21,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
   },
   toolbar: {
-    paddingRight: 24, // keep right padding when drawer closed
+    paddingRight: 24,
     backgroundColor: "black",
   },
   toolbarIcon: {
@@ -94,9 +95,6 @@ const useStyles = makeStyles((theme) => ({
     overflow: "auto",
     flexDirection: "column",
   },
-  fixedHeight: {
-    height: 240,
-  },
 }));
 
 export default function Layout(props) {
@@ -108,7 +106,6 @@ export default function Layout(props) {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  // const fixedHeightPaper = clsx(classes.paper, classes.fixedHeight);
 
   return (
     <div className={classes.root}>
@@ -116,7 +113,6 @@ export default function Layout(props) {
       <AppBar
         position="absolute"
         className={clsx(classes.appBar, open && classes.appBarShift)}
-        // style={{ backgroundColor: "grey" }}
       >
         <Toolbar className={classes.toolbar}>
           <IconButton
@@ -153,13 +149,15 @@ export default function Layout(props) {
           style={{ backgroundColor: "#55B496" }}
         >
           <IconButton onClick={handleDrawerClose}>
-            {/* <ChevronLeftIcon /> */}
+            <Icon
+              className="fa  fa-chevron-left"
+              style={{ fontSize: 18, color: "#fff", margin: 0 }}
+            />
           </IconButton>
         </div>
-        {/* <Divider /> */}
-        <List style={{ backgroundColor: "black" }}>{SidebarItems}</List>
-        {/* <Divider /> */}
-        {/* <List>{secondaryListItems}</List> */}
+        <List style={{ backgroundColor: "black" }}>
+          <SidebarItems />
+        </List>
       </Drawer>
       <main className={classes.content}>
         <div className={classes.appBarSpacer} />

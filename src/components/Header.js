@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import Typography from "@material-ui/core/Typography";
 import Select from "@material-ui/core/Select";
 import Input from "@material-ui/core/Input";
@@ -10,6 +10,17 @@ import Icon from "@material-ui/core/Icon";
 import AppContext from "../AppContext";
 
 const useStyles = makeStyles((theme) => ({
+  wrapper: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  searchIcon: {
+    fontSize: 10,
+    color: "grey",
+    margin: 0,
+  },
   formControl: {
     margin: theme.spacing(1),
     borderBottomColor: "grey",
@@ -26,7 +37,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Header = ({ title }) => {
-  // useEffect()
   const classes = useStyles();
   const {
     CITIES,
@@ -51,31 +61,15 @@ const Header = ({ title }) => {
     setQuery(e.target.value);
   };
 
-  console.log("category", currentCategory, query);
   return (
     <>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 20,
-        }}
-      >
-        <Typography
-          className=""
-          component="h2"
-          variant="h6"
-          color="black"
-          gutterBottom
-        >
+      <div className={classes.wrapper}>
+        <Typography component="h2" variant="h6" color="black" gutterBottom>
           {title}
         </Typography>
         <div className="">
           <FormControl className={classes.formControl} size="small">
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
               value={currentCity}
               className={classes.select}
               onChange={handleCityChange}
@@ -86,15 +80,11 @@ const Header = ({ title }) => {
               {CITIES.map((city, index) => (
                 <MenuItem value={index}>{city}</MenuItem>
               ))}
-
-              {/* <MenuItem value={30}>Thirty</MenuItem> */}
             </Select>
           </FormControl>
 
           <FormControl className={classes.formControl} size="small">
             <Select
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
               value={currentCategory}
               className={classes.select}
               onChange={handleCategoryChange}
@@ -107,18 +97,14 @@ const Header = ({ title }) => {
               ))}
             </Select>
           </FormControl>
+
           <FormControl className={classes.formControl} size="small">
             <Input
-              labelId="demo-simple-select-label"
-              id="demo-simple-select"
               value={query}
               className={classes.select}
               startAdornment={
                 <InputAdornment position="end">
-                  <Icon
-                    className="fa fa-search"
-                    style={{ fontSize: 10, color: "grey", margin: 0 }}
-                  />
+                  <Icon className={classes.searchIcon + " fa fa-search"} />
                 </InputAdornment>
               }
               onChange={handleQueryChange}

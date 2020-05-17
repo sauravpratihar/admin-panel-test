@@ -2,7 +2,6 @@ import React from "react";
 import Layout from "./components/Layout";
 import Bank from "./components/Bank";
 import { AppProvider } from "./AppContext";
-import "./App.css";
 const context = {};
 
 function App() {

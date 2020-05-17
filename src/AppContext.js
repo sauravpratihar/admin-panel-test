@@ -35,7 +35,6 @@ class AppProvider extends Component {
     const { children } = this.props;
     const {
       rowPerPage,
-      city,
       CITIES,
       currentCity,
       currentOffset,

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext } from "react";
-import Link from "@material-ui/core/Link";
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
@@ -13,32 +12,22 @@ import { addCache, getCache } from "../Caching";
 import { debounce } from "../utils";
 
 const useStyles = makeStyles((theme) => ({
-  pagination: {
-    marginTop: theme.spacing(3),
-    display: "inline-flex",
-    alignSelf: "flex-end",
-    margin: 10,
-  },
-  formControl: {
-    flexDirection: "row",
-  },
-  select: {
-    fontSize: 14,
-    paddingRight: 10,
+  tableRow: {
+    "& th": {
+      color: "grey",
+    },
   },
 }));
 
 export default function Bank() {
   const classes = useStyles();
-  const context = useContext(AppContext);
+  // const context = useContext(AppContext);
   const [globalData, setGlobalData] = useState([]);
   const [isFilter, setIsFilter] = useState(false);
-
   const [filteredData, setFilteredData] = useState([]);
-  const [pages, setPages] = useState(10);
+
   const {
     rowPerPage,
-    setRowPerPage,
     CITIES,
     currentCity,
     currentOffset,
@@ -46,71 +35,70 @@ export default function Bank() {
     query,
   } = useContext(AppContext);
 
+  // fetch data from api
   const fetchData = async (city) => {
-    // check api response in cache
+    // check if api response in cache
     let response = await getCache(city);
     let data;
     if (response) {
       data = response;
     } else {
+      // if not in cache, call api
       response = await fetch(
         `https://vast-shore-74260.herokuapp.com/banks?city=${city}`
       );
       data = await response.json();
       await addCache(city, data);
     }
-
     setGlobalData(data);
-  };
-
-  const findQuery = (category, query) => {
-    console.log("findQuery", category, query);
-    query = query.toLowerCase();
-    let filteredData = [];
-    switch (category) {
-      case 0:
-        // IFSC
-        filteredData = globalData.filter((item) =>
-          item.ifsc.toLowerCase().includes(query)
-        );
-        break;
-      case 1:
-        // BRANCH
-        filteredData = globalData.filter((item) =>
-          item.branch.toLowerCase().includes(query)
-        );
-        break;
-      case 2:
-        // BANK NAME
-        filteredData = globalData.filter((item) =>
-          item.bank_name.toLowerCase().includes(query)
-        );
-        break;
-      default:
-        console.log("default");
-    }
-    return filteredData;
   };
 
   useEffect(() => {
     fetchData(CITIES[currentCity]);
-  }, [currentCity]);
+  }, [currentCity, CITIES]);
 
   useEffect(() => {
-    console.log("find-q called");
-    if (query && currentCategory !== -1) {
-      console.log("find-q in if");
+    // filter category from global data
+    const findQuery = (category, query) => {
+      query = query.toLowerCase();
+      let filteredData = [];
+      switch (category) {
+        case 0:
+          // IFSC
+          filteredData = globalData.filter((item) =>
+            item.ifsc.toLowerCase().includes(query)
+          );
+          break;
+        case 1:
+          // BRANCH
+          filteredData = globalData.filter((item) =>
+            item.branch.toLowerCase().includes(query)
+          );
+          break;
+        case 2:
+          // BANK NAME
+          filteredData = globalData.filter((item) =>
+            item.bank_name.toLowerCase().includes(query)
+          );
+          break;
+        default:
+          console.log("Invalid Category");
+      }
+      return filteredData;
+    };
 
+    if (query && currentCategory !== -1) {
+      // stop calling function till the time complete (user input)
       debounce(() => {
-        console.log("dbounce triggered");
         setIsFilter(true);
         setFilteredData(findQuery(currentCategory, query));
-      }, 2000)();
+      }, 500)();
     } else if (!query) {
       setIsFilter(false);
     }
-  }, [query, currentCategory]);
-  const firstTenRows = isFilter
+  }, [query, currentCategory, globalData]);
+
+  const firstNRows = isFilter
     ? filteredData.slice(
         currentOffset * rowPerPage,
         (currentOffset + 1) * rowPerPage
@@ -119,24 +107,24 @@ export default function Bank() {
         currentOffset * rowPerPage,
         (currentOffset + 1) * rowPerPage
       );
-  console.log(currentOffset * rowPerPage, (currentOffset + 1) * rowPerPage);
-  console.log("rowPerPage.bank", rowPerPage, firstTenRows);
-  // if (!firstTenRows.length) return <p>Loading...</p>;
+
+  if (!firstNRows.length && !isFilter)
+    return <p style={{ textAlign: "center" }}>Loading...</p>;
   return (
     <React.Fragment>
       <Header title="Banks" />
       <Table size="small">
         <TableHead>
-          <TableRow style={{ color: "grey" }}>
-            <TableCell style={{ color: "grey" }}>Bank</TableCell>
-            <TableCell style={{ color: "grey" }}>IFSC</TableCell>
-            <TableCell style={{ color: "grey" }}>Branch</TableCell>
-            <TableCell style={{ color: "grey" }}>Bank ID</TableCell>
-            <TableCell style={{ color: "grey" }}>Address</TableCell>
+          <TableRow className={classes.tableRow}>
+            <TableCell>Bank</TableCell>
+            <TableCell>IFSC</TableCell>
+            <TableCell>Branch</TableCell>
+            <TableCell>Bank ID</TableCell>
+            <TableCell>Address</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {firstTenRows.map((row, index) => (
+          {firstNRows.map((row, index) => (
             <TableRow key={index}>
               <TableCell>{row.bank_name}</TableCell>
               <TableCell>{row.ifsc}</TableCell>
